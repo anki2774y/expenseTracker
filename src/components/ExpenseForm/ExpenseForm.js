@@ -1,20 +1,19 @@
 import React, { useEffect, useRef } from "react";
 import styles from "./ExpenseForm.module.css";
 
-const ExpenseForm = ({ expenses, addExpense, expenseToUpdate, changeExpenseToUpdate }) => {
+const ExpenseForm = ({
+  addExpense,
+  expenseToUpdate,
+  updateExpense,
+  resetExpenseToUpdate
+}) => {
   const expenseTextInput = useRef();
   const expenseAmountInput = useRef();
 
-  // Use the useEffect hook here, to check if an expense is to be updated
-  // If yes, the autofill the form values with the text and amount of the expense
   useEffect(() => {
-    console.log("EX: ",expenseToUpdate, ";;", expenses);
-    if(expenseToUpdate != null) {
-      let expense = expenses[expenseToUpdate];
-      
-      expenseTextInput.current.value = expense.text;
-      expenseAmountInput.current.value = expense.amount;
-    }
+    if (!expenseToUpdate) return;
+    expenseTextInput.current.value = expenseToUpdate.text;
+    expenseAmountInput.current.value = expenseToUpdate.amount;
   }, [expenseToUpdate]);
 
   const onSubmitHandler = (e) => {
@@ -24,26 +23,26 @@ const ExpenseForm = ({ expenses, addExpense, expenseToUpdate, changeExpenseToUpd
     if (parseInt(expenseAmount) === 0) {
       return;
     }
-
-    if (expenseToUpdate == null) {
+    if (!expenseToUpdate) {
       const expense = {
         text: expenseText,
-        amount: expenseAmount,
-        id: new Date().getTime()
+        amount: expenseAmount
       };
       addExpense(expense);
-    } else {
-      const expense = {
-        text: expenseText,
-        amount: expenseAmount,
-        id: expenses[expenseToUpdate].id
-      };
-      changeExpenseToUpdate(expenseToUpdate, expense);
+      clearInput();
+      return;
     }
+
+    const expense = {
+      text: expenseText,
+      amount: expenseAmount,
+      id: expenseToUpdate.id
+    };
+
+    const result = updateExpense(expense);
+    if (!result) return;
     clearInput();
-    return;
-    
-    // Logic to update expense here
+    resetExpenseToUpdate();
   };
 
   const clearInput = () => {
@@ -53,8 +52,7 @@ const ExpenseForm = ({ expenses, addExpense, expenseToUpdate, changeExpenseToUpd
 
   return (
     <form className={styles.form} onSubmit={onSubmitHandler}>
-      {/* Change text to Edit Transaction if an expense is to be updated */}
-      {expenseToUpdate==null ? <h3>Add new transaction</h3> : <h3> Edit transaction</h3> }
+      <h3>{expenseToUpdate ? "Edit " : "Add new "}transaction</h3>
       <label htmlFor="expenseText">Text</label>
       <input
         id="expenseText"
@@ -77,8 +75,7 @@ const ExpenseForm = ({ expenses, addExpense, expenseToUpdate, changeExpenseToUpd
         required
       />
       <button className={styles.submitBtn}>
-        {/* Change text to Edit Transaction if an expense is to be updated */}
-        {expenseToUpdate==null ? <span>Add Transaction</span> : <span>Edit Transaction</span>}
+        {expenseToUpdate ? "Edit " : "Add "} Transaction
       </button>
     </form>
   );
