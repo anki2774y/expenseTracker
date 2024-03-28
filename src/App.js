@@ -22,23 +22,6 @@ const reducer = (state, action) => {
         expenses: payload.expenses
       };
     }
-    case "ADD_EXPENSE": {
-      return {
-        expenses: [payload.expense, ...state.expenses],
-      };
-    }
-    case "REMOVE_EXPENSE": {
-      return {
-        expenses: state.expenses.filter((expense) => expense.id !== payload.id),
-      };
-    }
-    case "UPDATE_EXPENSE": {
-      const expensesDuplicate = state.expenses;
-      expensesDuplicate[payload.expensePos] = payload.expense;
-      return {
-        expenses: expensesDuplicate,
-      };
-    }
     default:
       return state;
   }
@@ -69,10 +52,6 @@ function App() {
     const expenseRef = collection(db, "expenses");
     const docRef = await addDoc(expenseRef, expense);
     
-    // dispatch({
-    //   type: "ADD_EXPENSE",
-    //   payload: { expense: { id: docRef.id, ...expense } },
-    // });
     toast.success("Expense added successfully.");
   };
 
@@ -82,7 +61,6 @@ function App() {
     const docRef = doc(db, "expenses", id);
     await deleteDoc(docRef);
 
-    dispatch({ type: "REMOVE_EXPENSE", payload: { id } });
     toast.success("Expense deleted successfully.");
   };
 
@@ -105,7 +83,6 @@ function App() {
     const updateExpense = doc(db, "expenses", expense.id);
     await updateDoc(updateExpense, expense);
 
-    dispatch({ type: "UPDATE_EXPENSE", payload: { expensePos, expense } });
     toast.success("Expense updated successfully.");
   };
 
